@@ -35,8 +35,8 @@ async function getProductInformationByProductId(productId) {
         productsPath,
         imagesPath,
         reviewsPath,
-        customersPath].map(readFileAsJSON)
-    );
+        customersPath
+    ].map(readFileAsJSON));
 
     // Find the product with the given productId
     const product = products.find(p => p.id === productId);
@@ -55,13 +55,13 @@ async function getProductInformationByProductId(productId) {
 
     // Collect reviews for the product
     filteredProduct.reviews = reviews
-        .filter(review => review.product_id === productId)
-        .map(review => {
+        .filter((review) => review.product_id === productId)
+        .map((review) => {
             const { product_id: _, customer_id, images, ...filteredReview } = review;
 
             // Retrieve the information of the customer who provided the review.
             filteredReview.customer = customerMap.get(customer_id);
-            
+
             if (filteredReview.customer) {
                 // `phone_number` should be encoded with base64.
                 filteredReview.customer.phone_number = btoa(filteredReview.customer.phone_number);
@@ -76,7 +76,7 @@ async function getProductInformationByProductId(productId) {
 
             return filteredReview;
         })
-        .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+        .sort((a, b) => (Date.parse(b.created_at) - Date.parse(a.created_at)));
 
     return filteredProduct;
 };
