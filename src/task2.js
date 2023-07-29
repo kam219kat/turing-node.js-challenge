@@ -13,46 +13,53 @@ const { validationErrorMessages } = require("./constants");
  * @param {String} expiryDate - Expiry date in ISO8601 format
  */
 async function updateExpiryDateByItemId(itemId, expiryDate) {
-  const validatedItemId = Number(itemId);
-
-  if (itemId === null || isNaN(validatedItemId) || !Number.isInteger(itemId)) {
-    throw new Error(validationErrorMessages.itemIdValidtion);
-  }
-
-  const validDatedExpiryDate = new Date(expiryDate);
-
-  if (expiryDate === null || isNaN(validDatedExpiryDate.getTime())) {
-    throw new Error(validationErrorMessages.expiryDateValidation);
-  }
-
-  const readFileAsync = util.promisify(fs.readFile);
-
-  const directoryPath = path.join(__dirname, "./data");
-  const filePath = path.join(directoryPath, "task2/update_item_products.json");
-
-  const data = await readFileAsync(filePath, "utf8");
-  let item = {};
-
-  const productList = data ? JSON.parse(data) : undefined;
-
-  let itemFound = false;
-  let productFound = {};
-
-  for (let productIndex = 0; productIndex < products.length; productIndex++) {
-    let product = products[productIndex];
-    item = product?.items.findIndex(
-      (element) => element.item_id === validatedItemId
-    );
-    if (item !== -1) {
-      itemFound = true;
-      productList.products[productIndex].items[item].expiry_date = expiryDate;
-      productFound = productList.products[productIndex];
-      productFound.items = productList.products[productIndex].items[item];
-      break;
+    // Check if `itemId` is a safe integer and greater than 0
+    itemId = Number(itemId);
+    if (!Number.isSafeInteger(itemId) || itemId <= 0) {
+        throw new Error(validationErrorMessages.itemIdValidtion);
     }
-  }
 
-  return productFound;
+    // Check if `expiryDate` is a valid date.
+    const validDatedExpiryDate = new Date(expiryDate);
+    if (!+validDatedExpiryDate) {
+        throw new Error(validationErrorMessages.expiryDateValidation);
+    }
+
+    const readFileAsync = util.promisify(fs.readFile);
+
+    // Get the product data
+    const directoryPath = path.join(__dirname, "./data");
+    const filePath = path.join(directoryPath, "task2/update_item_products.json");
+    const data = await readFileAsync(filePath, "utf8");
+    const productList = data ? JSON.parse(data).products : undefined;
+
+    // Check whether the product data is obtained successfully.
+    if (productList == null) {
+        throw new Error(validationErrorMessages.itemNotFound);
+    }
+
+    // Holds the item with the given `item_id`
+    let item = {};
+
+    // Index of the product which contains the matching item with the given `item_id`
+    const productIndex = productList.findIndex((product) => (
+        // Find the item with the given `item_id`
+        item = product.items.find(item => item.item_id === itemId)
+    ));
+
+    // Check if the item is found, otherwise throws `itemNotFound` error
+    if (item == null) {
+        throw new Error(validationErrorMessages.itemNotFound);
+    }
+
+    // Update the expiry_date of the item
+    item.expiry_date = expiryDate;
+
+    // Create a shallow copy of the product to make it only contain the updated item.
+    const productFound = { ...productList[productIndex] };
+    productFound.items = [item];
+
+    return productFound;
 }
 
 /**
@@ -61,14 +68,14 @@ async function updateExpiryDateByItemId(itemId, expiryDate) {
  * the function to test different use cases/scenarios
  */
 (async () => {
-  try {
-    const product = await updateExpiryDateByItemId(142, "2022-01-01");
-    console.log(JSON.stringify(product, null, 3));
-  } catch (err) {
-    console.error(err);
-  }
+    try {
+        const product = await updateExpiryDateByItemId(142, "2022-01-01");
+        console.log(JSON.stringify(product, null, 3));
+    } catch (err) {
+        console.error(err);
+    }
 })();
 
 module.exports = {
-  updateExpiryDateByItemId,
+    updateExpiryDateByItemId,
 };
