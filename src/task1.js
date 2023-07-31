@@ -17,10 +17,8 @@ const customersPath = '/data/task1/customers.json';
  */
 
 async function getProductInformationByProductId(productId) {
-    productId = Number(productId);
-
     // Check for the valid product id which should be a positive non-zero integer.
-    if (!Number.isSafeInteger(productId) || productId <= 0) {
+    if (!Number.isInteger(productId) || productId <= 0) {
         throw new Error(validationErrorMessages.productIdValidation);
     }
 

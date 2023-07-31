@@ -14,8 +14,7 @@ const { validationErrorMessages } = require("./constants");
  */
 async function updateExpiryDateByItemId(itemId, expiryDate) {
     // Check if `itemId` is a safe integer and greater than 0
-    itemId = Number(itemId);
-    if (!Number.isSafeInteger(itemId) || itemId <= 0) {
+    if (!Number.isInteger(itemId) || itemId <= 0) {
         throw new Error(validationErrorMessages.itemIdValidtion);
     }
 

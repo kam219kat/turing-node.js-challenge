@@ -14,8 +14,7 @@ const productsPath = 'data/task3/products.json';
  */
 async function addItem(productId, item) {
     // Validate `productId`
-    productId = Number(productId);
-    if (!Number.isSafeInteger(productId) || productId <= 0) {
+    if (!Number.isInteger(productId) || productId <= 0) {
         throw new Error(validationErrorMessages.productIdValidation);
     }
 
