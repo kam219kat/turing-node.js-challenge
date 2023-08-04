@@ -5,7 +5,6 @@ const fs = require("fs");
 const path = require("path");
 const moment = require("moment");
 const { validationErrorMessages } = require("./constants");
-
 /**
  * Add item to a product
  * @param {Number} productId - Product id
@@ -28,7 +27,7 @@ async function addItem(productId, item) {
 
     // Read product data from file
     const productsPath = 'data/task3/products.json';
-    let { products } = await fs.readFile(path.join(__dirname, productsPath)).then(JSON.parse);
+    let { products } = await fs.promises.readFile(path.join(__dirname, productsPath)).then(JSON.parse);
 
     // Find product by productId
     const product = products.find(product => product.id === productId);
