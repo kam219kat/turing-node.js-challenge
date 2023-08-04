@@ -1,15 +1,9 @@
 /**
  * Task 1
  */
-const fs = require("fs").promises;
+const fs = require("fs");
 const path = require("path");
 const { validationErrorMessages } = require("./constants");
-
-const productsPath = '/data/task1/products.json';
-const imagesPath = '/data/task1/images.json';
-const reviewsPath = '/data/task1/reviews.json';
-const customersPath = '/data/task1/customers.json';
-
 
 /**
  * Get Product info and its reviews
@@ -21,6 +15,20 @@ async function getProductInformationByProductId(productId) {
     if (!Number.isInteger(productId) || productId <= 0) {
         throw new Error(validationErrorMessages.productIdValidation);
     }
+
+    const productsPath = 'data/task1/products.json';
+    const imagesPath = 'data/task1/images.json';
+    const reviewsPath = 'data/task1/reviews.json';
+    const customersPath = 'data/task1/customers.json';
+
+    const readFileAsJSON = async (filePath) => {
+        const text = await fs.promises.readFile(path.join(__dirname, filePath), 'utf8');
+        return JSON.parse(text);
+    };
+
+    const createMapByProperty = (array, property) => (
+        new Map(array.map(item => [item[property], item]))
+    );
 
     // Read products, images, reviews, and customers from files
     // Note: Keep the order aligned with the paths.
@@ -79,14 +87,6 @@ async function getProductInformationByProductId(productId) {
     return filteredProduct;
 };
 
-async function readFileAsJSON(filePath) {
-    const text = await fs.readFile(path.join(__dirname, filePath), 'UTF8');
-    return JSON.parse(text);
-}
-
-function createMapByProperty(array, keyProperty) {
-    return new Map(array.map(item => [item[keyProperty], item]));
-}
 
 /**
  * TIP: Use the following code to test your implementation

@@ -1,11 +1,10 @@
 /**
  * Task 3
  */
-const fs = require("fs").promises;
+const fs = require("fs");
 const path = require("path");
 const moment = require("moment");
 const { validationErrorMessages } = require("./constants");
-const productsPath = 'data/task3/products.json';
 
 /**
  * Add item to a product
@@ -21,13 +20,14 @@ async function addItem(productId, item) {
     // Check if `item` is a valid object
     if (
         typeof item !== 'object' ||
-        typeof item.id !== 'number' ||
-        typeof item.expiry_date !== 'string'
+        typeof item?.id !== 'number' ||
+        typeof item?.expiry_date !== 'string'
     ) {
         throw new Error(validationErrorMessages.itemValidation);
     }
 
     // Read product data from file
+    const productsPath = 'data/task3/products.json';
     let { products } = await fs.readFile(path.join(__dirname, productsPath)).then(JSON.parse);
 
     // Find product by productId

@@ -20,8 +20,9 @@ async function updateExpiryDateByItemId(itemId, expiryDate) {
 
     // Check if `expiryDate` is a valid date.
     const validDatedExpiryDate = new Date(expiryDate);
-    if (!+validDatedExpiryDate) {
-        throw new Error(validationErrorMessages.expiryDateValidation);
+  
+    if (expiryDate === null || isNaN(validDatedExpiryDate.getTime())) {
+      throw new Error(validationErrorMessages.expiryDateValidation);
     }
 
     const readFileAsync = util.promisify(fs.readFile);
@@ -30,10 +31,10 @@ async function updateExpiryDateByItemId(itemId, expiryDate) {
     const directoryPath = path.join(__dirname, "./data");
     const filePath = path.join(directoryPath, "task2/update_item_products.json");
     const data = await readFileAsync(filePath, "utf8");
-    const productList = data ? JSON.parse(data).products : undefined;
+    const products = data ? JSON.parse(data).products : undefined;
 
     // Check whether the product data is obtained successfully.
-    if (productList == null) {
+    if (products == null) {
         throw new Error(validationErrorMessages.itemNotFound);
     }
 
@@ -41,7 +42,7 @@ async function updateExpiryDateByItemId(itemId, expiryDate) {
     let item = {};
 
     // Index of the product which contains the matching item with the given `item_id`
-    const productIndex = productList.findIndex((product) => (
+    const productIndex = products.findIndex((product) => (
         // Find the item with the given `item_id`
         item = product.items.find(item => item.item_id === itemId)
     ));
@@ -55,7 +56,7 @@ async function updateExpiryDateByItemId(itemId, expiryDate) {
     item.expiry_date = expiryDate;
 
     // Create a shallow copy of the product to make it only contain the updated item.
-    const productFound = { ...productList[productIndex] };
+    const productFound = { ...products[productIndex] };
     productFound.items = [item];
 
     return productFound;
